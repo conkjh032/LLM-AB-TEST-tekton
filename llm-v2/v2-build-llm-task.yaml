@@ -1,0 +1,53 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: llmops-abtest-v2-build
+  namespace: tekton-pipelines
+spec:
+  params:
+    - name: GIT_REPO
+      type: string
+    - name: IMAGE
+      type: string
+  workspaces:
+    - name: source
+  volumes:
+    - name: docker-config
+      secret:
+        secretName: harbor-docker-config
+    - name: pretrained-model
+      persistentVolumeClaim:
+        claimName: llm-v2-model-pvc
+
+  steps:
+    - name: clone-repo
+      image: alpine/git
+      script: |
+        cd /workspace/source
+        ls -a
+        git clone $(params.GIT_REPO) .
+
+    - name: kaniko-build
+      image: gcr.io/kaniko-project/executor:debug
+      computeResources:
+        requests:
+          memory: 2Gi
+          cpu: 1000m
+        limits:
+          memory: 4Gi
+          cpu: 1000m
+      script: |
+        VERSION_TAG=$(grep 'tag:' /workspace/source/helm/values.yaml | awk '{print $2}' | tr -d '"')
+        echo "VERSION_TAG=$VERSION_TAG"
+
+        /kaniko/executor \
+          --dockerfile=/workspace/source/Dockerfile \
+          --context=/workspace/source \
+          --destination=$(params.IMAGE):$VERSION_TAG \
+          --insecure
+      volumeMounts:
+        - name: docker-config
+          mountPath: /kaniko/.docker
+        - name: pretrained-model
+          mountPath: /model/pretrained
+          readOnly: true

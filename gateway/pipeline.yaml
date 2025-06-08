@@ -1,0 +1,25 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: llm-build-pipeline-abtest-gateway
+  namespace: tekton-pipelines
+spec:
+  params:
+    - name: GIT_REPO
+      type: string
+    - name: IMAGE
+      type: string
+  workspaces:
+    - name: shared-workspace
+  tasks:
+    - name: build-llm
+      taskRef:
+        name: llmops-abtest-gateway-build
+      params:
+        - name: GIT_REPO
+          value: $(params.GIT_REPO)
+        - name: IMAGE
+          value: $(params.IMAGE)
+      workspaces:
+        - name: source
+          workspace: shared-workspace

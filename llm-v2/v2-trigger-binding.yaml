@@ -1,0 +1,11 @@
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerBinding
+metadata:
+  name: gitlab-trigger-binding-abtest-v2
+  namespace: tekton-pipelines
+spec:
+  params:
+    - name: GIT_REPO
+      value: "http://192.168.65.254:8080/root/llm-v2.git"
+    - name: IMAGE
+      value: "192.168.65.254:90/library/llm-v2"

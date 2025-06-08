@@ -1,0 +1,13 @@
+apiVersion: triggers.tekton.dev/v1beta1
+kind: EventListener
+metadata:
+  name: tekton-listener-abtest-v2
+  namespace: tekton-pipelines
+spec:
+  serviceAccountName: tekton-sa
+  triggers:
+    - name: gitlab-trigger-abtest-v2
+      bindings:
+        - ref: gitlab-trigger-binding-abtest-v2
+      template:
+        ref: gitlab-trigger-template-abtest-v2

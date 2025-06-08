@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: "2025-04-12T13:02:08Z"
+  name: tekton-listener-abtest-v1-nodeport
+  namespace: tekton-pipelines
+  resourceVersion: "138717"
+  uid: 7bf2ba3d-0494-47b5-8f77-e586c6f9029a
+spec:
+  externalTrafficPolicy: Cluster
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - name: http
+    nodePort: 32001
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    eventlistener: tekton-listener-abtest-v1
+  sessionAffinity: None
+  type: NodePort
+status:
+  loadBalancer: {}
